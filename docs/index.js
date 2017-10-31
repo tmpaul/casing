@@ -34,12 +34,68 @@
    */
   function toCamel(styleString) {
     // Replace all new lines with ;
+    var styleObject = {};
+
+    // Parse css
+    try {
+      var ast = window.csstree.parse(styleString);
+      var stack = [];
+      window.csstree.walk(ast, function(node) {
+        if (node.type === "Rule") {
+          // Get the selector or selector list
+          stack.push({
+            type: "rule",
+            classes: []
+          });
+        }
+        if (node.type === "ClassSelector") {
+          // Check if we are within a rule
+          if (stack[stack.length - 1].type === "rule") {
+            stack[stack.length - 1].classes.push({
+              name: node.name,
+              block: null
+            });
+          }
+        }
+        if (node.type === "Block") {
+          if (stack[stack.length - 1].type === "rule") {
+            stack[stack.length - 1].classes[stack[stack.length - 1].classes.length - 1].block = window.csstree.translate(node);
+          } 
+        }
+      });
+      // Now run over rules
+      stack.forEach(function(rule) {
+        var classes = rule.classes;
+        var camelizedNames = classes.map(function(k) {
+          return camelize(k.name);
+        });
+        // For each of the classes, create rules in turn
+        classes.forEach(function(klass, index) {
+          let camelized = camelizedNames[index];
+          if (klass.block) {
+            styleObject[camelized] = toCamel(klass.block.replace(/\{|\}/g, ""));
+          }
+          if (index > 0) {
+            var i = 0, start = {};
+            // Merge the styles of previous klasses in
+            for (i; i < index; i++) {
+              start = Object.assign(start, styleObject[camelizedNames[i]]);
+            }
+            styleObject[camelized] = Object.assign(start, styleObject[camelized]);
+          }
+        });
+      });
+      return styleObject;
+    } catch (e) {
+      // Ignore, might be simple style declarations
+    }
+
     styleString =  styleString.replace(/\n|\t/g, ";");
     var styleLines = styleString.split(";").filter(function (line) {
       return line.length !== 0;
     });
+
     // Run camel case conversion
-    var styleObject = {};
     styleLines.forEach(function (line) {
       var split = line.replace("-", " ").replace(";", "").trim().split(":");
       var camelCased = camelize(split[0]);
