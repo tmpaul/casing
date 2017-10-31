@@ -2,3 +2,5 @@
 
 # Casing
 Sweat free case conversion for css to inline styles and vice versa
+
+Navigate to: https://tmpaul06.github.io/casing/
