@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <pattern id="pattern-0" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse" viewBox="0 0 100 100">
+      <path d="M 0 0 L 50 0 L 50 100 L 0 100 Z" style="fill: black;"/>
+    </pattern>
+    <linearGradient id="gradient-4" gradientUnits="userSpaceOnUse" x1="261.059" y1="68.72" x2="261.059" y2="298.578" spreadMethod="pad" gradientTransform="matrix(1, 0, 0, 0.886598, -0.000002, 7.792982)">
+      <stop offset="0" style="stop-color: rgba(0, 255, 204, 1)"/>
+      <stop offset="1" style="stop-color: rgb(54, 208, 177);"/>
+    </linearGradient>
+  </defs>
+  <path d="M 354.66 111.44 L 289.1 68.72 L 202.197 68.72 L 155.608 168.866 L 251.975 272.512 L 332.544 234.695 L 327.804 212.284 L 263.823 241.698 L 221.169 181.47 L 217.219 96.033 L 354.66 111.44 Z" style="stroke-width: 1px; fill: url(#gradient-4); stroke-linecap: round; stroke-dasharray: 2px; stroke-linejoin: round; stroke: rgb(13, 183, 146);"/>
+</svg>
