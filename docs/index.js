@@ -97,7 +97,7 @@
 
     // Run camel case conversion
     styleLines.forEach(function (line) {
-      var split = line.replace("-", " ").replace(";", "").trim().split(":");
+      var split = line.replace(/\-/g, " ").replace(/\;/g, "").trim().split(":");
       var camelCased = camelize(split[0]);
       styleObject[camelCased.trim()] = split[1].trim();
     });
