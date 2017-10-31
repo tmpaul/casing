@@ -6,7 +6,8 @@
     <meta name="author" content="Tharun Mathew Paul">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="index.css" rel="stylesheet"></link>
-    <link rel="icon" type="image/png" href="favicon-32x32.png" sizes="32x32" />
+    <link rel="icon" type="image/png" href="favicon-32x32.png" sizes="32x32"/>
+    <script type="text/javascript" src="index.js"></script>
   </head>
   <body>
     <div id="title" class="title">
@@ -59,6 +60,98 @@
         </span>
       </div>
     </div>
-    <p class="description">Sweat free case conversion for css to inline styles and vice versa</p>
+    <p id="description" class="description">Sweat free case conversion for css to inline styles and vice versa</p>
+
+    <button class="swap-button" onclick="swap()">
+      Swap      
+    </button>
+
+    <div class="row">
+      <div class="column">
+        <h4 id="source_text">Paste CSS</h4>
+        <!-- Text area for source -->
+        <textarea id="source">
+        </textarea>
+      </div>
+
+      <div class="column">
+        <h4 id="target_text">Inline styles</h4>
+        <!-- Text area for target -->
+        <textarea id="target">
+        </textarea>
+      </div>
+    </div>
+
   </body>
+  <script type="text/javascript">
+
+    function setNodeText(id, text) {
+      document.getElementById(id).innerHTML = text;
+    }
+
+    function swap() {
+      window.__casing.mode = window.__casing.mode === "inline" ? "css" : "inline";
+      if (window.__casing.mode === "inline") {
+        setNodeText("source_text", "Paste CSS");
+        setNodeText("target_text", "Inline styles");
+      } else {
+        setNodeText("target_text", "CSS");
+        setNodeText("source_text", "Paste inline styles");
+      }
+    }
+
+    // https://davidwalsh.name/javascript-debounce-function
+    // Returns a function, that, as long as it continues to be invoked, will not
+    // be triggered. The function will be called after it stops being called for
+    // N milliseconds. If `immediate` is passed, trigger the function on the
+    // leading edge, instead of the trailing.
+    function debounce(func, wait, immediate) {
+      var timeout;
+      return function() {
+        var context = this, args = arguments;
+        var later = function() {
+          timeout = null;
+          if (!immediate) func.apply(context, args);
+        };
+        var callNow = immediate && !timeout;
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+        if (callNow) func.apply(context, args);
+      };
+    };
+
+    function updateTarget(value) {    
+      // Convert to camel
+      try {
+        if (window.__casing.mode === "inline") {
+          var transformed = window.__casing.toCamel(value.replace(/\"/g,""));
+          transformed = JSON.stringify(transformed, null, 2);
+
+        } else {
+          var transformed = window.__casing.toCSS(JSON.parse(value));
+        }
+        document.getElementById('target').value = transformed;
+        document.getElementById('source').classList.remove('error');
+      } catch (e) {
+        document.getElementById('source').classList.add('error');
+      }
+    }
+
+    updateTarget = debounce(updateTarget, 100);
+
+    var area = document.getElementById('source');
+    if (area.addEventListener) {
+      area.addEventListener('input', function(e) {
+        // event handling code for sane browsers
+        var value = e.target.value;
+        updateTarget(value);
+      }, false);
+    } else if (area.attachEvent) {
+      area.attachEvent('onpropertychange', function(e) {
+        // IE-specific event handling code
+        var value = e.target.value;
+        updateTarget(value);
+      });
+    }
+  </script>
 </html>
