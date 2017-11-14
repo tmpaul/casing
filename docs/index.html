@@ -95,9 +95,11 @@
       if (window.__casing.mode === "inline") {
         setNodeText("source_text", "Paste CSS");
         setNodeText("target_text", "Inline styles");
+        updateTarget(document.getElementById("source").value);
       } else {
         setNodeText("target_text", "CSS");
         setNodeText("source_text", "Paste inline styles");
+        updateTarget(document.getElementById("source").value);
       }
     }
 

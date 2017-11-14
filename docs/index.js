@@ -119,16 +119,25 @@
   /**
    * A function that converts an inline style 
    * @param  {Object} camelcaseStyles The style object in camel case notation
+   * @param {String} prefix           The prefix to use for a className
    * @return {String}                 CSS string
    */
-  function toCSS(camelcaseStyles) {
+  function toCSS(camelcaseStyles, prefix) {
+    prefix = prefix || "";
     // Check if it is a valid object
     if (!isObject(camelcaseStyles)) {
       throw new Error("Expected an object instead got " + typeof camelcaseStyles);
     }
     var styleStringArray = [];
     Object.keys(camelcaseStyles).forEach(function (key) {
-      styleStringArray.push(lowerUnder(key) + " : " + camelcaseStyles[key].replace("\"", "") + ";");
+      if (!isObject(camelcaseStyles[key])) {
+        styleStringArray.push("  " + lowerUnder(key) + " : " + String(camelcaseStyles[key]).replace("\"", "") + ";");
+      } else {
+        // Pass the object and get style as a string
+        styleStringArray.push(prefix + "." + lowerUnder(key) + "{");
+          styleStringArray = styleStringArray.concat(toCSS(camelcaseStyles[key], "." + lowerUnder(key)).split("\n"));
+        styleStringArray.push("}");
+      }
     });
     return styleStringArray.join("\n");
   }
