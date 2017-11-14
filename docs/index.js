@@ -110,10 +110,37 @@
    * @return {String}        The transformed string
    */
   function lowerUnder(str) {
-    return str.replace(/[\-\:]/g, " ").replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, function(match, index) {
-      if (+match === 0) return ""; // or if (/\s+/.test(match)) for white spaces
-      return index == 0 ? match.toLowerCase() : "-" + match.toLowerCase();
+    return str.split(".").map(function(s) {
+      return s.replace(/[\-\:]/g, " ").replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, function(match, index) {
+        if (+match === 0) return ""; // or if (/\s+/.test(match)) for white spaces
+        return index == 0 ? match.toLowerCase() : "-" + match.toLowerCase();
+      });
+    }).join(".");
+  }
+
+  /**
+   * Given an object with nested keys, flatten the structure
+   * @param  {Object} target An object with nested keys
+   * @param  {String} prefix The prefix for next key
+   * @param  {Object} flattenedObject Final object to return
+   * @param  {Object} sourceObject The local object for assignment
+   * @return {Object}        An object with flattened keys
+   */
+  function flattenKeys(target, prefix,flattenedObject, sourceObject) {
+    flattenedObject = flattenedObject || {};
+    prefix = prefix || "";
+    sourceObject = sourceObject || flattenedObject;
+    Object.keys(target).forEach(function(key) {
+      if (isObject(target[key])) {
+        // Call flatten to flatten next nested level. All objects are therefore assigned to global object.
+        flattenedObject[prefix + "." + key] = flattenKeys(target[key], prefix + "." + key, flattenedObject, {});
+        // If there are no 'Object' values for `target`, 
+      } else {
+        // Local assignment
+        sourceObject[key] = target[key];
+      }
     });
+    return sourceObject;
   }
 
   /**
@@ -122,24 +149,24 @@
    * @param {String} prefix           The prefix to use for a className
    * @return {String}                 CSS string
    */
-  function toCSS(camelcaseStyles, prefix) {
-    prefix = prefix || "";
+  function toCSS(camelcaseStyles) {
     // Check if it is a valid object
     if (!isObject(camelcaseStyles)) {
       throw new Error("Expected an object instead got " + typeof camelcaseStyles);
     }
-    var styleStringArray = [];
+    camelcaseStyles = flattenKeys(camelcaseStyles);
+    var styleArray = [];
     Object.keys(camelcaseStyles).forEach(function (key) {
       if (!isObject(camelcaseStyles[key])) {
-        styleStringArray.push("  " + lowerUnder(key) + " : " + String(camelcaseStyles[key]).replace("\"", "") + ";");
+        styleArray.push("  " + lowerUnder(key) + " : " + String(camelcaseStyles[key]).replace("\"", "") + ";");
       } else {
         // Pass the object and get style as a string
-        styleStringArray.push(prefix + "." + lowerUnder(key) + "{");
-          styleStringArray = styleStringArray.concat(toCSS(camelcaseStyles[key], "." + lowerUnder(key)).split("\n"));
-        styleStringArray.push("}");
+        styleArray.push(lowerUnder(key) + " {");
+        styleArray = styleArray.concat(toCSS(camelcaseStyles[key]).split("\n"));
+        styleArray.push("}");
       }
     });
-    return styleStringArray.join("\n");
+    return styleArray.join("\n");
   }
 
   window.__casing.toCSS = toCSS;
