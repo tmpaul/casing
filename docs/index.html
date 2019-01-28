@@ -133,7 +133,13 @@
           transformed = JSON.stringify(transformed, null, 2);
 
         } else {
-          var transformed = window.__casing.toCSS(JSON.parse(value));
+          try {
+            value = JSON.parse(value);
+          } catch (e) {
+            // Allows us to create valid objects from object notation
+			value = eval('(' + value + ')');
+          }
+          var transformed = window.__casing.toCSS(value);
         }
         document.getElementById('target').value = transformed;
         document.getElementById('source').classList.remove('error');
